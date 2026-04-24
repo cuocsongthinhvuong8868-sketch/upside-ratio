@@ -178,6 +178,7 @@ today_str = actual_today.strftime('%Y-%m-%d')
 today_date = actual_today.date()
 
 # ==========================================
+# ==========================================
 # 4. GIAO DIỆN CHÍNH
 # ==========================================
 with st.expander("🗄️ Quản lý Dữ liệu (Local Cache)", expanded=False):
@@ -192,6 +193,12 @@ with st.expander("🗄️ Quản lý Dữ liệu (Local Cache)", expanded=False)
             new_index = fetch_vnindex_data(start_date_str, today_str)
             if not new_index.empty:
                 new_index.to_csv(VNINDEX_FILE)
+            
+            # --- FIX LỖI CACHE Ở ĐÂY ---
+            load_cached_prices.clear()
+            load_cached_vnindex.clear()
+            # ---------------------------
+            
             st.rerun()
     else:
         last_date_in_cache = df_cache.index.max().date()
@@ -213,6 +220,12 @@ with st.expander("🗄️ Quản lý Dữ liệu (Local Cache)", expanded=False)
                     index_combined = index_combined[~index_combined.index.duplicated(keep='last')]
                     index_combined.sort_index(inplace=True)
                     index_combined.to_csv(VNINDEX_FILE)
+                
+                # --- FIX LỖI CACHE Ở ĐÂY ---
+                load_cached_prices.clear()
+                load_cached_vnindex.clear()
+                # ---------------------------
+                
                 st.rerun()
 
 with st.sidebar:
