@@ -203,30 +203,37 @@ with st.expander("🗄️ Quản lý Dữ liệu (Local Cache)", expanded=False)
     else:
         last_date_in_cache = df_cache.index.max().date()
         st.success(f"Dữ liệu cục bộ OK — Cập nhật lần cuối: **{last_date_in_cache}**")
+        
+        # --- FIX GIAO DIỆN: Luôn hiện nút, không bao giờ ẩn đi ---
         if last_date_in_cache < today_date:
-            if st.button("🔄 Cập nhật dữ liệu mới", type="primary"):
-                start_fetch = last_date_in_cache.strftime('%Y-%m-%d')
-                new_data = fetch_prices_kbs(DEFAULT_SYMBOLS, start_fetch, today_str)
-                if not new_data.empty:
-                    df_combined = pd.concat([df_cache, new_data])
-                    df_combined = df_combined[~df_combined.index.duplicated(keep='last')]
-                    df_combined.sort_index(inplace=True)
-                    df_combined.to_csv(CSV_FILE)
-                
-                st.info("Đang tải dữ liệu VN-Index mới...")
-                new_index = fetch_vnindex_data(start_fetch, today_str)
-                if not new_index.empty:
-                    index_combined = pd.concat([df_index_cache, new_index])
-                    index_combined = index_combined[~index_combined.index.duplicated(keep='last')]
-                    index_combined.sort_index(inplace=True)
-                    index_combined.to_csv(VNINDEX_FILE)
-                
-                # --- FIX LỖI CACHE Ở ĐÂY ---
-                load_cached_prices.clear()
-                load_cached_vnindex.clear()
-                # ---------------------------
-                
-                st.rerun()
+            btn_label = "🔄 Cập nhật dữ liệu mới"
+            btn_style = "primary"
+            start_fetch = last_date_in_cache.strftime('%Y-%m-%d')
+        else:
+            btn_label = "⚠️ Ép tải lại (Force Update)"
+            btn_style = "secondary"
+            # Lùi lại 1 ngày để API quét đè lại dữ liệu phiên hôm nay
+            start_fetch = (today_date - timedelta(days=1)).strftime('%Y-%m-%d')
+
+        if st.button(btn_label, type=btn_style):
+            new_data = fetch_prices_kbs(DEFAULT_SYMBOLS, start_fetch, today_str)
+            if not new_data.empty:
+                df_combined = pd.concat([df_cache, new_data])
+                df_combined = df_combined[~df_combined.index.duplicated(keep='last')]
+                df_combined.sort_index(inplace=True)
+                df_combined.to_csv(CSV_FILE)
+            
+            st.info("Đang tải dữ liệu VN-Index mới...")
+            new_index = fetch_vnindex_data(start_fetch, today_str)
+            if not new_index.empty:
+                index_combined = pd.concat([df_index_cache, new_index])
+                index_combined = index_combined[~index_combined.index.duplicated(keep='last')]
+                index_combined.sort_index(inplace=True)
+                index_combined.to_csv(VNINDEX_FILE)
+            
+            load_cached_prices.clear()
+            load_cached_vnindex.clear()
+            st.rerun()
 
 with st.sidebar:
     st.header("⚙️ Cấu hình Model")
