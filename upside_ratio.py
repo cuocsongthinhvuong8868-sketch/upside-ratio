@@ -556,7 +556,7 @@ if not df_cache.empty and not df_index_cache.empty:
             with st.spinner("AI đang quét ma trận 12.000 kịch bản Cung - Cầu..."):
                 try:
                     genai.configure(api_key=gemini_key)
-                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    model = genai.GenerativeModel('gemini-3-flash')
 
                     prompt = f"""
                     Bạn là Giám đốc Quản trị Rủi ro (CRO) tại một quỹ lượng hóa. 
