@@ -6,3 +6,4 @@ plotly
 statsmodels
 google-generativeai
 vnstock
+pytz
